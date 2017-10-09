@@ -22,13 +22,53 @@
 	
 		<!-- Header
 		========================================== -->
-  		<header>
+  		<header class="container">
+  			<div class="row">
+  				<div class="jumbotron text-center">
+  					<h1>Anytime is Train Time</h1>
+  					<h3>Choo Choo. Chee Chee.</h3>
+  				</div>
+  			</div>
 		</header>
 
 		<!-- Main
 		========================================== -->
-		<main>
-		</main>
+		
+		<!-- Table -->
+		<div class="container">
+			<div class="row">
+				<div class="panel panel-primary">
+					<div class="panel-heading">Current Train Schedule</div>
+					<table class="table">
+					</table>
+				</div>
+			</div>
+		</div>
+
+		<!-- Search Area -->
+		<div class="container">
+			<div class="row">
+				<div class="panel panel-primary">
+					<div class="panel-heading">Add Train</div>
+					<div class="panel-body">
+						<form>
+							<div class="form-group">
+								<label for="trainName">Train Name</label>
+								<input type="text" class="form-control" id="trainName">
+								<label for="destination">Destination</label>
+								<input type="text" class="form-control" id="destination">
+								<label for="firstTrainTime">First Train Time (HH:mm - military time)</label>
+								<input type="text" class="form-control" id="firstTrainTime">
+								<label for="frequency">Frequency (min)</label>
+								<input type="text" class="form-control" id="frequency">
+
+							</div>
+							<button type="submit" class="btn btn-primary" id="submitButton">Submit</button>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
 
 		<!-- Footer
 		========================================== -->
