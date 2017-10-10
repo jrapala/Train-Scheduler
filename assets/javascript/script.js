@@ -29,6 +29,9 @@ $(document).ready(function(){
 	var destination = '';
 	var firstTrainTime = '';
 	var frequency = 0;
+	var nextArrival = 0;
+	var minutesAway = 0;
+
 
 	// Main Processes 
 	// =====================================================================================
@@ -40,14 +43,14 @@ $(document).ready(function(){
 		snapshot.forEach(function(childSnapshot){
 			trainName = childSnapshot.val().trainName;
 		    destination = childSnapshot.val().destination;
-		    firstTrainTime = childSnapshot.val().firstTrainTime;
 		    frequency = childSnapshot.val().frequency;
-
+		    nextArrival = childSnapshot.val().nextArrival;
+			minutesAway = childSnapshot.val().minutesAway;
 
 		      //var convertedDate = moment(startDate, "DD/MM/YY");
 		      //var monthsActuallyWorked = moment(convertedDate, '')
 
-		    $("table").append("<tr class='trainRecord'><td>" + trainName + "</td><td>" + destination + "</td><td>" + firstTrainTime + "</td><td>" + frequency + "</td></tr>");
+		    $("tbody").append("<tr class='trainRecord'><td>" + trainName + "</td><td>" + destination + "</td><td>" + frequency + "</td><td>" + nextArrival + "</td><td>" + minutesAway + "</td></tr>");
 		});
 
 
@@ -74,8 +77,9 @@ $(document).ready(function(){
 		database.ref().push({
 		  trainName: trainName,
 		  destination: destination,
-		  firstTrainTime: firstTrainTime,
-		  frequency: frequency
+		  frequency: frequency,
+		  nextArrival : nextArrival,
+		  minutesAway : minutesAway
 		});
 	});
 });
