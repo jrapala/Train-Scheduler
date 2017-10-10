@@ -28,10 +28,17 @@ $(document).ready(function(){
 	var nextArrival = 0;
 	var minutesAway = 0;
 
+	// Get current time in moment.js format
+	var currentTime = moment();
+
 
 	// Main Processes 
 	// =====================================================================================
 
+	// Update Welcome Message
+	var $welcomeMessage = $('<h3>');
+	$welcomeMessage.html("Welcome! The current time is " + currentTime.format("HH:mm") + ".");
+	$('#welcomeMessage').append($welcomeMessage);
 
 	// Populate objects from database
 	database.ref().on("value", function(snapshot) {
@@ -46,17 +53,16 @@ $(document).ready(function(){
 		    // Convert to firstTrainTime to moment.js format
 		    var convertedFirstTrainTime = moment(firstTrainTime, 'HH:mm');
 
-		    // Get current time in moment.js format
-		    var currentTime = moment();
-
 		    // Calculate next train arrival
 		    for (var i = convertedFirstTrainTime; i.isBefore(currentTime); i.add(frequency, 'm')) {
 		    	nextArrival = i;
 		    }	
-
 		    // Debug
 		   	console.log("The current time is " + currentTime.format("HH:mm"));
 		   	console.log("The next train will leave at " + nextArrival.format("HH:mm"));
+
+		   	// Calculate minutes until next train
+		   	minutesAway = nextArrival.diff(currentTime, 'minutes');
 
 		   	// Add values to table
 		    $("tbody").append("<tr class='trainRecord'><td>" + trainName + "</td><td>" + destination + "</td><td>" + frequency + "</td><td>" + nextArrival.format("HH:mm") + "</td><td>" + minutesAway + "</td></tr>");
