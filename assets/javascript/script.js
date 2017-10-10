@@ -5,10 +5,6 @@
 
 $(document).ready(function(){
 
-	// $.getScript("https://www.gstatic.com/firebasejs/4.5.0/firebase.js", function() {
-	// 	console.log("Script loaded but not necessarily executed.");
-	// });
-
 	// Setup Variables 
 	// =====================================================================================
 
@@ -40,17 +36,30 @@ $(document).ready(function(){
 	// Populate objects from database
 	database.ref().on("value", function(snapshot) {
 
+		// Loop through values of each entry in the database and assign them to variables.
 		snapshot.forEach(function(childSnapshot){
 			trainName = childSnapshot.val().trainName;
 		    destination = childSnapshot.val().destination;
 		    frequency = childSnapshot.val().frequency;
-		    nextArrival = childSnapshot.val().nextArrival;
-			minutesAway = childSnapshot.val().minutesAway;
+		    firstTrainTime = childSnapshot.val().firstTrainTime;
 
-		      //var convertedDate = moment(startDate, "DD/MM/YY");
-		      //var monthsActuallyWorked = moment(convertedDate, '')
+		    // Convert to firstTrainTime to moment.js format
+		    var convertedFirstTrainTime = moment(firstTrainTime, 'HH:mm');
 
-		    $("tbody").append("<tr class='trainRecord'><td>" + trainName + "</td><td>" + destination + "</td><td>" + frequency + "</td><td>" + nextArrival + "</td><td>" + minutesAway + "</td></tr>");
+		    // Get current time in moment.js format
+		    var currentTime = moment();
+
+		    // Calculate next train arrival
+		    for (var i = convertedFirstTrainTime; i.isBefore(currentTime); i.add(frequency, 'm')) {
+		    	nextArrival = i;
+		    }	
+
+		    // Debug
+		   	console.log("The current time is " + currentTime.format("HH:mm"));
+		   	console.log("The next train will leave at " + nextArrival.format("HH:mm"));
+
+		   	// Add values to table
+		    $("tbody").append("<tr class='trainRecord'><td>" + trainName + "</td><td>" + destination + "</td><td>" + frequency + "</td><td>" + nextArrival.format("HH:mm") + "</td><td>" + minutesAway + "</td></tr>");
 		});
 
 
@@ -77,9 +86,8 @@ $(document).ready(function(){
 		database.ref().push({
 		  trainName: trainName,
 		  destination: destination,
-		  frequency: frequency,
-		  nextArrival : nextArrival,
-		  minutesAway : minutesAway
+		  firstTrainTime: firstTrainTime,
+		  frequency : frequency
 		});
 	});
 });
