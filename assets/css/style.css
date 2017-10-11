@@ -131,13 +131,21 @@ nav li:last-child a {
 	border-right: 0;
 }
 
-/*** Main Content 
+/*** Main Content ***/
 
-body {
-	background: url("../images/ep_naturalwhite.png");
+.jumbotron {
+    background-image:    url("../images/trainBackground.png");
+    background-size:     cover;                      
+    background-repeat:   no-repeat;
+    background-position: bottom center;
+    height: 400px; 
 }
 
-***/
+#welcomeMessage {
+	padding-bottom: 50px;
+}
+
+
 
 
 
