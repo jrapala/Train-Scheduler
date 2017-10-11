@@ -5,12 +5,6 @@
 
 $(document).ready(function(){
 
-	// Refresh every minute
-	setTimeout(function() {
-  		location.reload();
-	}, 60000);
-
-
 	// Setup Variables 
 	// =====================================================================================
 
@@ -40,9 +34,17 @@ $(document).ready(function(){
 	// Train icon file
 	var trainIcon = "<img src='assets/images/trainIcon.svg' height='20px'>"
 
+	// RegEx for page reload
+	var re = new RegExp("[5][9]$");
+
 	// Clock Function
 	function update() {
-  		$('#clock').html(moment().format('H:mm:ss'));
+		var clockTime = moment().format('HH:mm:ss');
+  		$('#clock').html(clockTime);
+  		// If time ends in 59 seconds, reload page
+  		if (re.test(clockTime)) {
+    		location.reload();	
+		}
 	}
 	setInterval(update, 1000);
 
