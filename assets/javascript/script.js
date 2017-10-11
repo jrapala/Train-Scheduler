@@ -10,6 +10,7 @@ $(document).ready(function(){
   		location.reload();
 	}, 60000);
 
+
 	// Setup Variables 
 	// =====================================================================================
 
@@ -36,16 +37,24 @@ $(document).ready(function(){
 	// Get current time in moment.js format
 	var currentTime = moment();
 
+	// Train icon file
 	var trainIcon = "<img src='assets/images/trainIcon.svg' height='20px'>"
 
+	// Clock Function
+	function update() {
+  		$('#clock').html(moment().format('H:mm:ss'));
+	}
+	setInterval(update, 1000);
 
 	// Main Processes 
 	// =====================================================================================
 
 	// Update Welcome Message
 	var $welcomeMessage = $('<h3>');
-	$welcomeMessage.html("Welcome! The current time is " + currentTime.format("hh:mm A") + ".");
+	$welcomeMessage.html("Welcome! The current time is <div id='clock' class='clock'></div>");
 	$('#welcomeMessage').append($welcomeMessage);
+
+	//currentTime.format("hh:mm A")
 
 	// Populate objects from database
 	database.ref().on("value", function(snapshot) {
