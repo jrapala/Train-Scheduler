@@ -55,6 +55,13 @@ $(document).ready(function(){
 		$welcomeMessage.html("Welcome! The current time is <div id='clock' class='clock'></div>");
 		$('#welcomeMessage').append($welcomeMessage);
 
+		// Function that adds editing instructions when an Edit button is clicked.
+		var editMessage = function () {
+			var $editMessage = $('<h4 style="color:red">');
+			$editMessage.html("Please change one field and press the Edit button, otherwise refresh page to exit.");
+			$('#welcomeMessage').append($editMessage);
+		}
+
 		// Populate objects from database
 		database.ref().on("value", function(snapshot) {
 
@@ -77,8 +84,16 @@ $(document).ready(function(){
 			   	minutesAway = nextArrival.diff(currentTime, 'minutes');
 			   	minutesAway++;
 
+			   	// Get key of current object
+			   	var currentKey = childSnapshot.key;
+
+			   	// Create Edit Button
+			   	var trainNameShort = trainName.replace(/\s+/g, '').toLowerCase();
+			   	var trainValue = " value='" + trainNameShort + "'";
+			   	var editButton = "<button class='editButton'" + trainValue + " data-key='" + currentKey + "'>Edit</button>";
+
 			   	// Add values to table
-			    $("tbody").append("<tr class='trainRecord'><td>" + 
+			    $("#trainsGoHere").append("<tr class='trainRecord'><td class='" + trainNameShort + "' data-key='" + currentKey + "' value='" + trainName + "'>" + 
 			    	trainIcon + " " + 
 			    	trainName + 
 			    	"</td><td>" + 
@@ -89,6 +104,8 @@ $(document).ready(function(){
 			    	nextArrival.format("hh:mm A") + 
 			    	"</td><td>" + 
 			    	minutesAway + 
+			    	"</td><td>" +
+			    	editButton +
 			    	"</td></tr>");
 			});
 
@@ -120,4 +137,69 @@ $(document).ready(function(){
 				frequency : frequency
 			});
 		});
+
+		// Update 
+
+		$("#trainsGoHere").delegate(".editButton", "click", function() {
+
+			event.preventDefault();
+
+			// Hide all buttons except for the current row that is being edited.
+			$(".editButton").hide();
+			$(this).show();
+
+			// Change button to an Update button
+			$(this).text('Update');
+			$(this).attr('class', 'updateButton');
+
+			// Display edit message
+			editMessage();
+
+			// Replace all cells in the row that was clicked with input fields.
+			var rowClicked = $(this).val();
+			var selectedCells = $('.'+rowClicked);
+			selectedCells.empty();
+			selectedCells.append('<input type="text" id="redlinetrainname">');
+			
+			var newTrainName = selectedCells.val()
+
+		});
+
+		$("#trainsGoHere").delegate(".updateButton", "click", function() {
+
+			event.preventDefault();
+
+			// Get values submitted via form
+			trainName = $("#redlinetrainname").val().trim();
+			var keyToUpdate = $(this).attr('data-key');
+			// Update database entry if text entered is not blank
+			if (trainName.length>0) {
+				database.ref(keyToUpdate+"/trainName").set(trainName);
+				location.reload();
+			};
+
+			// Add values to database
+			// database.ref().set({
+			// 	trainName: trainName,
+			// });
+
+
+		});
+
+
 });
+
+//database.ref("key/trainName").set(trainName);
+// Add update button to each row
+// 
+// Add remove button to each row
+
+// To Do
+// =====================================================================================
+// * Try adding `update` and `remove` buttons for each train. Let the user edit the row's 
+// elements-- allow them to change a train's Name, Destination and Arrival Time (and then, 
+// by relation, minutes to arrival).
+// 
+// * As a final challenge, make it so that only users who log into the site with their 
+// Google or GitHub accounts can use your site. You'll need to read up on Firebase 
+// authentication for this bonus exercise.
