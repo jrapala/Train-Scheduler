@@ -149,6 +149,9 @@ nav li:last-child a {
 	display: inline-block;
 }
 
+.cancelButton {
+	margin-left: 4px;
+}
 
 
 

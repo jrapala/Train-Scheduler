@@ -40,7 +40,7 @@ $(document).ready(function(){
 	// =====================================================================================
 
 		// Clock Function
-		function update() {
+		var updateClock = function() {
 			var clockTime = moment().format('hh:mm:ss');
 	  		$('#clock').html(clockTime);
 	  		// If time ends in 00 seconds, reload page
@@ -48,7 +48,6 @@ $(document).ready(function(){
 	    		location.reload();	
 			}
 		}
-		setInterval(update, 1000);
 
 		// Update Welcome Message
 		var $welcomeMessage = $('<h3>');
@@ -56,64 +55,125 @@ $(document).ready(function(){
 		$('#welcomeMessage').append($welcomeMessage);
 
 		// Function that adds editing instructions when an Edit button is clicked.
-		var editMessage = function () {
+		var editMessage = function() {
 			var $editMessage = $('<h4 style="color:red">');
-			$editMessage.html("Please change one field and press the Edit button, otherwise refresh page to exit.");
+			$editMessage.html("Please change one field and press the Update button to submit changes.");
 			$('#welcomeMessage').append($editMessage);
 		}
 
 		// Populate objects from database
-		database.ref().on("value", function(snapshot) {
+		var updateTable = function() {
+			database.ref().on("value", function(snapshot) {
 
-			// Loop through values of each entry in the database and assign them to variables.
-			snapshot.forEach(function(childSnapshot){
-				trainName = childSnapshot.val().trainName;
-			    destination = childSnapshot.val().destination;
-			    frequency = childSnapshot.val().frequency;
-			    firstTrainTime = childSnapshot.val().firstTrainTime;
+				// Loop through values of each entry in the database and assign them to variables.
+				snapshot.forEach(function(childSnapshot){
+					trainName = childSnapshot.val().trainName;
+				    destination = childSnapshot.val().destination;
+				    frequency = childSnapshot.val().frequency;
+				    firstTrainTime = childSnapshot.val().firstTrainTime;
 
-			    // Convert to firstTrainTime to moment.js format
-			    var convertedFirstTrainTime = moment(firstTrainTime, 'HH:mm');
+				    // Convert to firstTrainTime to moment.js format
+				    var convertedFirstTrainTime = moment(firstTrainTime, 'HH:mm');
 
-			    // Calculate next train arrival
-			    for (var i = convertedFirstTrainTime; i.isBefore(currentTime); i.add(frequency, 'm')) {
-			    	nextArrival = i;
-			    }	
+				    // Calculate next train arrival
+				    for (var i = convertedFirstTrainTime; i.isBefore(currentTime); i.add(frequency, 'm')) {
+				    	nextArrival = i;
+				    }	
 
-			   	// Calculate minutes until next train
-			   	minutesAway = nextArrival.diff(currentTime, 'minutes');
-			   	minutesAway++;
+				   	// Calculate minutes until next train
+				   	minutesAway = nextArrival.diff(currentTime, 'minutes');
+				   	minutesAway++;
 
-			   	// Get key of current object
-			   	var currentKey = childSnapshot.key;
+				   	// Get key of current object
+				   	var currentKey = childSnapshot.key;
 
-			   	// Create Edit Button
-			   	var trainNameShort = trainName.replace(/\s+/g, '').toLowerCase();
-			   	var trainValue = " value='" + trainNameShort + "'";
-			   	var editButton = "<button class='editButton'" + trainValue + " data-key='" + currentKey + "'>Edit</button>";
+				   	// Create Edit Button
+				   	var trainNameShort = trainName.replace(/\s+/g, '').toLowerCase();
+				   	var trainValue = " value='" + trainNameShort + "'";
 
-			   	// Add values to table
-			    $("#trainsGoHere").append("<tr class='trainRecord'><td class='" + trainNameShort + "' data-key='" + currentKey + "' value='" + trainName + "'>" + 
-			    	trainIcon + " " + 
-			    	trainName + 
-			    	"</td><td>" + 
-			    	destination + 
-			    	"</td><td>" + 
-			    	frequency + 
-			    	"</td><td>" + 
-			    	nextArrival.format("hh:mm A") + 
-			    	"</td><td>" + 
-			    	minutesAway + 
-			    	"</td><td>" +
-			    	editButton +
-			    	"</td></tr>");
+				   	var $editButton = $('<button>');
+				   	$editButton.attr('class', 'editButton');
+				   	$editButton.attr('value', trainNameShort);
+				   	$editButton.attr('data-key', currentKey);
+				   	$editButton.html('Edit');
+
+				   	//var editButton = "<button class='editButton'" + trainValue + " data-key='" + currentKey + "'>Edit</button>";
+
+				   	// Add values to table
+
+				   	// Create row
+				   	var $trainRow = $('<tr>');
+				   	$trainRow.attr('class', 'trainRecord');
+
+				   	// Create cells
+				   	var $trainNameCell = $('<td>');
+					var $trainDestinationCell = $('<td>');
+					var $trainFrequencyCell = $('<td>');
+					var $trainNextArrivalCell = $('<td>');
+					var $trainMinutesAwayCell = $('<td>');
+					var $trainEditButtonCell = $('<td>');
+
+					// Train name cell
+				   	// $trainNameCell.attr('data-key', currentKey);
+				   	$trainNameCell.attr('value', trainNameShort);
+				   	$trainNameCell.attr('class', 'name-' + trainNameShort);
+				   	$trainNameCell.html(trainIcon + " " + trainName);
+				   	$trainRow.append($trainNameCell);
+
+				   	// Train destination cell
+				   	// $trainDestinationCell.attr('data-key', currentKey);
+				   	$trainDestinationCell.attr('value', trainNameShort);
+				   	$trainDestinationCell.attr('class', 'destination-' + trainNameShort);
+				   	$trainDestinationCell.html(destination);
+				   	$trainRow.append($trainDestinationCell);
+
+				   	// Train frequency cell
+				   	// $trainFrequencyCell.attr('data-key', currentKey);
+				   	$trainFrequencyCell.attr('value', trainNameShort);
+				   	$trainFrequencyCell.attr('class', 'frequency-' + trainNameShort); 	
+				   	$trainFrequencyCell.html(frequency);
+				   	$trainRow.append($trainFrequencyCell);
+
+				   	// Train next arrival cell
+				   	$trainNextArrivalCell.html(nextArrival.format("hh:mm A"));
+				   	$trainRow.append($trainNextArrivalCell);
+		   	
+				   	// Train minutes away cell
+				    $trainMinutesAwayCell.html(minutesAway);
+				   	$trainRow.append($trainMinutesAwayCell);
+
+				   	// Train edit cell
+				   	$trainEditButtonCell.html($editButton);
+				   	$trainEditButtonCell.attr('class', 'buttonsCell');
+				   	$trainRow.append($trainEditButtonCell);
+
+				   	// Add row to table
+		   			$("#trainsGoHere").append($trainRow);
+		   				   	
+				   	// Add values to table
+				    // $("#trainsGoHere").append("<tr class='trainRecord'><td class='" + trainNameShort + "' data-key='" + currentKey + "' value='" + trainName + "'>" + 
+				    // 	trainIcon + " " + 
+				    // 	trainName + 
+				    // 	"</td><td>" + 
+				    // 	destination + 
+				    // 	"</td><td>" + 
+				    // 	frequency + 
+				    // 	"</td><td>" + 
+				    // 	nextArrival.format("hh:mm A") + 
+				    // 	"</td><td>" + 
+				    // 	minutesAway + 
+				    // 	"</td><td>" +
+				    // 	editButton +
+				    // 	"</td></tr>");
+				});
+
+
+		  	// If any errors are experienced, log them to console.
+			}, function(errorObject) {
+		  		console.log("The read failed: " + errorObject.code);
 			});
-
-
-	  	// If any errors are experienced, log them to console.
-		}, function(errorObject) {
-	  		console.log("The read failed: " + errorObject.code);
-		});
+		// End of updateTable() function.
+		};
 
 		// Submit to database
 		$("#submitButton").on("click", function(event) {
@@ -152,16 +212,35 @@ $(document).ready(function(){
 			$(this).text('Update');
 			$(this).attr('class', 'updateButton');
 
+			// Add cancel button
+			var $cancelButton = $('<button>');
+			$cancelButton.attr('class', 'cancelButton');
+			$cancelButton.html('Cancel');
+			$(this).parent().append($cancelButton);
+
 			// Display edit message
 			editMessage();
 
 			// Replace all cells in the row that was clicked with input fields.
 			var rowClicked = $(this).val();
-			var selectedCells = $('.'+rowClicked);
-			selectedCells.empty();
-			selectedCells.append('<input type="text" id="redlinetrainname">');
+
+			var selectedNameCell = $('.name-'+rowClicked);
+			selectedNameCell.empty();
+			selectedNameCell.html('<input type="text" class="name-' + rowClicked + '-cell">');
+
+			var selectedDestinationCell = $('.destination-'+rowClicked);
+			selectedDestinationCell.empty();
+			selectedDestinationCell.html('<input type="text" class="destination-' + rowClicked + '-cell">');
+
+			var selectedFrequencyCell = $('.frequency-'+rowClicked);
+			selectedFrequencyCell.empty();
+			selectedFrequencyCell.html('<input type="text" class="frequency-' + rowClicked + '-cell">');
 			
-			var newTrainName = selectedCells.val()
+			// var selectedCells = $('.'+rowClicked);
+			// selectedCells.empty();
+			// selectedCells.append('<input type="text" id="redlinetrainname">');
+
+			//var newTrainName = selectedCells.val()
 
 		});
 
@@ -169,24 +248,65 @@ $(document).ready(function(){
 
 			event.preventDefault();
 
+			var rowClicked = $(this).val();
+
+			var selectedNameCell = $('.name-'+rowClicked+'-cell');
+			var selectedDestinationCell = $('.destination-'+rowClicked+'-cell');
+			var selectedFrequencyCell = $('.frequency-'+rowClicked+'-cell');
+
+			console.log(selectedNameCell);
+			console.log(selectedDestinationCell);
+			console.log(selectedFrequencyCell);	
+
 			// Get values submitted via form
-			trainName = $("#redlinetrainname").val().trim();
+			trainName = selectedNameCell.val().trim();
+			destination = selectedDestinationCell.val().trim();
+			frequency = selectedFrequencyCell.val().trim();
+
+			console.log(trainName);
+			console.log(destination);
+			console.log(frequency);	
+
 			var keyToUpdate = $(this).attr('data-key');
 			// Update database entry if text entered is not blank
 			if (trainName.length>0) {
 				database.ref(keyToUpdate+"/trainName").set(trainName);
 				location.reload();
 			};
+			if (destination.length>0) {
+				database.ref(keyToUpdate+"/destination").set(destination);
+				location.reload();
+			};
+			if (frequency.length>0) {
+				database.ref(keyToUpdate+"/frequency").set(frequency);
+				location.reload();
+			};
+
+			//location.reload();
 
 			// Add values to database
 			// database.ref().set({
 			// 	trainName: trainName,
 			// });
+		});
 
+		$("#trainsGoHere").delegate(".cancelButton", "click", function() {
+
+			event.preventDefault();
+			location.reload();
 
 		});
 
+	// Run App
+	// =====================================================================================
 
+	// Clock tick
+	setInterval(updateClock, 1000);
+
+	// Popular table
+	updateTable();
+
+// End of $(document).ready(function(){
 });
 
 //database.ref("key/trainName").set(trainName);
