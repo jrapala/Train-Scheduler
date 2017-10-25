@@ -72,6 +72,9 @@ $(document).ready(function(){
 				    frequency = childSnapshot.val().frequency;
 				    firstTrainTime = childSnapshot.val().firstTrainTime;
 
+				    // Time Calculations
+					// =========================================
+
 				    // Convert to firstTrainTime to moment.js format
 				    var convertedFirstTrainTime = moment(firstTrainTime, 'HH:mm');
 
@@ -84,22 +87,15 @@ $(document).ready(function(){
 				   	minutesAway = nextArrival.diff(currentTime, 'minutes');
 				   	minutesAway++;
 
+
+				   	// Create Table
+					// =========================================
+
 				   	// Get key of current object
 				   	var currentKey = childSnapshot.key;
 
-				   	// Create Edit Button
+				   	// Value creation
 				   	var trainNameShort = trainName.replace(/\s+/g, '').toLowerCase();
-				   	var trainValue = " value='" + trainNameShort + "'";
-
-				   	var $editButton = $('<button>');
-				   	$editButton.attr('class', 'editButton');
-				   	$editButton.attr('value', trainNameShort);
-				   	$editButton.attr('data-key', currentKey);
-				   	$editButton.html('Edit');
-
-				   	//var editButton = "<button class='editButton'" + trainValue + " data-key='" + currentKey + "'>Edit</button>";
-
-				   	// Add values to table
 
 				   	// Create row
 				   	var $trainRow = $('<tr>');
@@ -114,21 +110,18 @@ $(document).ready(function(){
 					var $trainEditButtonCell = $('<td>');
 
 					// Train name cell
-				   	// $trainNameCell.attr('data-key', currentKey);
 				   	$trainNameCell.attr('value', trainNameShort);
 				   	$trainNameCell.attr('class', 'name-' + trainNameShort);
 				   	$trainNameCell.html(trainIcon + " " + trainName);
 				   	$trainRow.append($trainNameCell);
 
 				   	// Train destination cell
-				   	// $trainDestinationCell.attr('data-key', currentKey);
 				   	$trainDestinationCell.attr('value', trainNameShort);
 				   	$trainDestinationCell.attr('class', 'destination-' + trainNameShort);
 				   	$trainDestinationCell.html(destination);
 				   	$trainRow.append($trainDestinationCell);
 
 				   	// Train frequency cell
-				   	// $trainFrequencyCell.attr('data-key', currentKey);
 				   	$trainFrequencyCell.attr('value', trainNameShort);
 				   	$trainFrequencyCell.attr('class', 'frequency-' + trainNameShort); 	
 				   	$trainFrequencyCell.html(frequency);
@@ -142,6 +135,13 @@ $(document).ready(function(){
 				    $trainMinutesAwayCell.html(minutesAway);
 				   	$trainRow.append($trainMinutesAwayCell);
 
+				   	// Create Edit Button
+				   	var $editButton = $('<button>');
+				   	$editButton.attr('class', 'editButton');
+				   	$editButton.attr('value', trainNameShort);
+				   	$editButton.attr('data-key', currentKey);
+				   	$editButton.html('Edit');
+
 				   	// Train edit cell
 				   	$trainEditButtonCell.html($editButton);
 				   	$trainEditButtonCell.attr('class', 'buttonsCell');
@@ -149,33 +149,17 @@ $(document).ready(function(){
 
 				   	// Add row to table
 		   			$("#trainsGoHere").append($trainRow);
-		   				   	
-				   	// Add values to table
-				    // $("#trainsGoHere").append("<tr class='trainRecord'><td class='" + trainNameShort + "' data-key='" + currentKey + "' value='" + trainName + "'>" + 
-				    // 	trainIcon + " " + 
-				    // 	trainName + 
-				    // 	"</td><td>" + 
-				    // 	destination + 
-				    // 	"</td><td>" + 
-				    // 	frequency + 
-				    // 	"</td><td>" + 
-				    // 	nextArrival.format("hh:mm A") + 
-				    // 	"</td><td>" + 
-				    // 	minutesAway + 
-				    // 	"</td><td>" +
-				    // 	editButton +
-				    // 	"</td></tr>");
 				});
-
 
 		  	// If any errors are experienced, log them to console.
 			}, function(errorObject) {
 		  		console.log("The read failed: " + errorObject.code);
 			});
+
 		// End of updateTable() function.
 		};
 
-		// Submit to database
+		// Submit button click function
 		$("#submitButton").on("click", function(event) {
 
 			event.preventDefault();
@@ -198,21 +182,20 @@ $(document).ready(function(){
 			});
 		});
 
-		// Update 
-
+		// Edit button click function   
 		$("#trainsGoHere").delegate(".editButton", "click", function() {
 
 			event.preventDefault();
 
-			// Hide all buttons except for the current row that is being edited.
+			// Hide all buttons except for the button in the current row that is being edited.
 			$(".editButton").hide();
 			$(this).show();
 
-			// Change button to an Update button
+			// Change the Edit button to an Update button
 			$(this).text('Update');
 			$(this).attr('class', 'updateButton');
 
-			// Add cancel button
+			// Add a Cancel button
 			var $cancelButton = $('<button>');
 			$cancelButton.attr('class', 'cancelButton');
 			$cancelButton.html('Cancel');
@@ -235,39 +218,28 @@ $(document).ready(function(){
 			var selectedFrequencyCell = $('.frequency-'+rowClicked);
 			selectedFrequencyCell.empty();
 			selectedFrequencyCell.html('<input type="text" class="frequency-' + rowClicked + '-cell">');
-			
-			// var selectedCells = $('.'+rowClicked);
-			// selectedCells.empty();
-			// selectedCells.append('<input type="text" id="redlinetrainname">');
-
-			//var newTrainName = selectedCells.val()
-
 		});
 
+		// Update button click function   
 		$("#trainsGoHere").delegate(".updateButton", "click", function() {
 
 			event.preventDefault();
 
+			// Find out which row was updated.
 			var rowClicked = $(this).val();
 
 			var selectedNameCell = $('.name-'+rowClicked+'-cell');
 			var selectedDestinationCell = $('.destination-'+rowClicked+'-cell');
 			var selectedFrequencyCell = $('.frequency-'+rowClicked+'-cell');
 
-			console.log(selectedNameCell);
-			console.log(selectedDestinationCell);
-			console.log(selectedFrequencyCell);	
-
 			// Get values submitted via form
 			trainName = selectedNameCell.val().trim();
 			destination = selectedDestinationCell.val().trim();
 			frequency = selectedFrequencyCell.val().trim();
 
-			console.log(trainName);
-			console.log(destination);
-			console.log(frequency);	
-
+			// Find out which key to update in the database
 			var keyToUpdate = $(this).attr('data-key');
+
 			// Update database entry if text entered is not blank
 			if (trainName.length>0) {
 				database.ref(keyToUpdate+"/trainName").set(trainName);
@@ -281,15 +253,9 @@ $(document).ready(function(){
 				database.ref(keyToUpdate+"/frequency").set(frequency);
 				location.reload();
 			};
-
-			//location.reload();
-
-			// Add values to database
-			// database.ref().set({
-			// 	trainName: trainName,
-			// });
 		});
 
+		// Cancel button click function 
 		$("#trainsGoHere").delegate(".cancelButton", "click", function() {
 
 			event.preventDefault();
@@ -303,22 +269,16 @@ $(document).ready(function(){
 	// Clock tick
 	setInterval(updateClock, 1000);
 
-	// Popular table
+	// Populate table
 	updateTable();
 
 // End of $(document).ready(function(){
 });
 
-//database.ref("key/trainName").set(trainName);
-// Add update button to each row
-// 
-// Add remove button to each row
 
 // To Do
 // =====================================================================================
-// * Try adding `update` and `remove` buttons for each train. Let the user edit the row's 
-// elements-- allow them to change a train's Name, Destination and Arrival Time (and then, 
-// by relation, minutes to arrival).
+// Add "Remove" buttons
 // 
 // * As a final challenge, make it so that only users who log into the site with their 
 // Google or GitHub accounts can use your site. You'll need to read up on Firebase 
